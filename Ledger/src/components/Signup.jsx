@@ -10,7 +10,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5173/api/signup", { email, password });
+      const res = await axios.post("http://localhost:3000/api/signup", { email, password });
       if (res.data.success) {
         navigate("/dashboard");
       }

@@ -6,37 +6,41 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const userData = { email, password };
+    setLoading(true);
+    setError('');
 
     try {
-      let response;
-      if (isSignUp) {
-        // Sign Up API Call
-        // Example: Make sure the URL is correct
-        const response = await axios.post('http://localhost:5174/api/signup', userData);
-      } else {
-        // Login API Call
-        // Example: Make sure the URL is correct
-        const response = await axios.post('http://localhost:5174/api/login', userData);
-      }
-
+      const userData = { email, password };
+      console.log(userData)
+      const endpoint = isSignUp ? '/api/signup' : '/api/login';
+      
+      const response = await axios.post(`http://localhost:3000${endpoint}`, userData);
+      
       if (response.data.success) {
-        navigate('/dashboard'); // Redirect to dashboard after successful login/signup
+        navigate('/dashboard');
+      } else {
+        setError(response.data.message || 'Something went wrong.');
       }
     } catch (error) {
-      console.error('Error:', error.response?.data?.message);
+      setError(error.response?.data?.message || 'Server error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="login-container">
       <h1>{isSignUp ? 'Sign Up' : 'Login'}</h1>
-      <form onSubmit={handleSubmit}>
+      
+      {error && <p className="error-message">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="login-form">
         <div>
           <label>Email:</label>
           <input
@@ -55,9 +59,12 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit">{isSignUp ? 'Sign Up' : 'Login'}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login'}
+        </button>
       </form>
-      <button onClick={() => setIsSignUp(!isSignUp)}>
+
+      <button onClick={() => setIsSignUp(!isSignUp)} className="toggle-btn">
         {isSignUp ? 'Already have an account? Login' : 'New user? Sign Up'}
       </button>
     </div>
